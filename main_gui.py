@@ -2,124 +2,118 @@ import dearpygui.dearpygui as dpg
 import json
 from transport import Client, Vehicle, TransportCompany, Van, Airplane
 
-company = TransportCompany("TC") # Глобальные переменные для хранения данных
+company = TransportCompany("TC")
 
 
-# Функции для обновления таблиц
 def update_client():
-    dpg.delete_item("clients_table", children_only=True)  # Удаляем все строки из таблицы клиентов
+    dpg.delete_item("clients_table", children_only=True)
     for client in company.clients:
-        with dpg.table_row(parent="clients_table"):  # Добавляем новую строку в таблицу клиентов
-            dpg.add_text(client.name)  # Добавляем имя клиента
-            dpg.add_text(str(client.cargo_weight))  # Добавляем вес груза клиента
-            dpg.add_text("Да" if client.is_vip else "Нет")  # Добавляем статус VIP клиента (Да/Нет)
+        with dpg.table_row(parent="clients_table"): 
+            dpg.add_text(client.name)  
+            dpg.add_text(str(client.cargo_weight))  
+            dpg.add_text("Да" if client.is_vip else "Нет")
             
 
 def update_vehicle():
-    dpg.delete_item("vehicles_table", children_only=True)  # Удаляем все строки из таблицы транспортных средств
+    dpg.delete_item("vehicles_table", children_only=True) 
     for vehicle in company.vehicles:
-        with dpg.table_row(parent="vehicles_table"):  # Добавляем новую строку в таблицу транспортных средств
-            dpg.add_text(str(vehicle.vehicle_id))  # Добавляем ID транспортного средства
-            dpg.add_text(str(vehicle.capacity))  # Добавляем грузоподъёмность транспортного средства
-            dpg.add_text(str(vehicle.current_load))  # Добавляем текущую загрузку транспортного средства
+        with dpg.table_row(parent="vehicles_table"):
+            dpg.add_text(str(vehicle.vehicle_id))
+            dpg.add_text(str(vehicle.capacity)) 
+            dpg.add_text(str(vehicle.current_load))
             if isinstance(vehicle, Airplane):
-                dpg.add_text(f"Высота: {vehicle.max_altitude}")  # Если транспортное средство - самолёт, добавляем максимальную высоту полета
+                dpg.add_text(f"Высота: {vehicle.max_altitude}") 
             elif isinstance(vehicle, Van):
-                dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  # Если транспортное средство - фургон, добавляем информацию о наличии холодильника
+                dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  
 
 
 def show_clients():
-    if dpg.does_item_exist("all_clients_window"):  # Проверяем, существует ли окно "all_clients_window"
+    if dpg.does_item_exist("all_clients_window"): 
         return
-    with dpg.window(label="Все клиенты", modal=True, width=700, height=500, tag="all_clients_window"):  # Создаем новое окно "Все клиенты"
-        with dpg.table(header_row=True):  # Создаем таблицу с заголовком
-            dpg.add_table_column(label="Имя клиента")  # Добавляем колонку "Имя клиента"
-            dpg.add_table_column(label="Вес груза")  # Добавляем колонку "Вес груза"
-            dpg.add_table_column(label="VIP статус")  # Добавляем колонку "VIP статус"
+    with dpg.window(label="Все клиенты", modal=True, width=700, height=500, tag="all_clients_window"): 
+        with dpg.table(header_row=True): 
+            dpg.add_table_column(label="Имя клиента") 
+            dpg.add_table_column(label="Вес груза")
+            dpg.add_table_column(label="VIP статус")
             for client in company.clients:
-                with dpg.table_row():  # Добавляем строку в таблицу для каждого клиента
-                    dpg.add_text(client.name)  # Добавляем имя клиента
-                    dpg.add_text(str(client.cargo_weight))  # Добавляем вес груза клиента
-                    dpg.add_text("Да" if client.is_vip else "Нет")  # Добавляем статус VIP клиента (Да/Нет)
+                with dpg.table_row(): 
+                    dpg.add_text(client.name) 
+                    dpg.add_text(str(client.cargo_weight))
+                    dpg.add_text("Да" if client.is_vip else "Нет") 
                     dpg.set_value("status", "Таблица выведена")
-        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("all_clients_window"))  # Добавляем кнопку "Закрыть" для удаления окна
+        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("all_clients_window"))
 
 
 
 def show_vehicles():
-    if dpg.does_item_exist("all_vehicles_window"):  # Проверяем, существует ли окно "all_vehicles_window"
+    if dpg.does_item_exist("all_vehicles_window"): 
         for vehicle in company.vehicles:
-            with dpg.table_row():  # Добавление строки в таблицу для каждого загруженного транспортного средства
-                dpg.add_text(str(vehicle.vehicle_id))  # ID транспортного средства
-                dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                dpg.add_text(str(vehicle.current_load))  # Текущая загрузка
+            with dpg.table_row(): 
+                dpg.add_text(str(vehicle.vehicle_id)) 
+                dpg.add_text(str(vehicle.capacity)) 
+                dpg.add_text(str(vehicle.current_load)) 
                 if isinstance(vehicle, Airplane):
-                    dpg.add_text(f"Высота: {vehicle.max_altitude}")  # Если транспортное средство - самолёт, добавляем максимальную высоту полета
+                    dpg.add_text(f"Высота: {vehicle.max_altitude}")
                 elif isinstance(vehicle, Van):
-                    dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  # Если транспортное средство - фургон, добавляем информацию о наличии холодильника
+                    dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")
             dpg.set_value("status", "Таблица выведена")
         return
     with dpg.window(label="Все транспортные средства", modal=True, width=900, height=700, tag="all_vehicles_window"):  # Создаем новое окно "Все транспортные средства"
-        with dpg.table(header_row=True):  # Создаем таблицу с заголовком
-            dpg.add_table_column(label="ID")  # Добавляем колонку "ID"
-            dpg.add_table_column(label="Грузоподъемность")  # Добавляем колонку "Грузоподъемность"
-            dpg.add_table_column(label="Текущая загрузка")  # Добавляем колонку "Текущая загрузка"
-            dpg.add_table_column(label="Особенности")  # Добавляем колонку "Особенности"
+        with dpg.table(header_row=True): 
+            dpg.add_table_column(label="ID") 
+            dpg.add_table_column(label="Грузоподъемность")
+            dpg.add_table_column(label="Текущая загрузка")  
+            dpg.add_table_column(label="Особенности")
             for vehicle in company.vehicles:
-                with dpg.table_row():  # Добавляем строку в таблицу для каждого транспортного средства
-                    dpg.add_text(str(vehicle.vehicle_id))  # ID транспортного средства
-                    dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                    dpg.add_text(str(vehicle.current_load))  # Текущая загрузка
+                with dpg.table_row():  
+                    dpg.add_text(str(vehicle.vehicle_id)) 
+                    dpg.add_text(str(vehicle.capacity))  
+                    dpg.add_text(str(vehicle.current_load)) 
                     if isinstance(vehicle, Airplane):
-                        dpg.add_text(f"Высота: {vehicle.max_altitude}")  # Если транспортное средство - самолёт, добавляем максимальную высоту полета
+                        dpg.add_text(f"Высота: {vehicle.max_altitude}")
                     elif isinstance(vehicle, Van):
-                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  # Если транспортное средство - фургон, добавляем информацию о наличии холодильника
+                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")
             dpg.set_value("status", "Таблица выведена")
-        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("all_vehicles_window"))  # Добавляем кнопку "Закрыть" для удаления окна
+        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("all_vehicles_window")) 
 
 
 def show_loaded():
-    # Проверка, существует ли уже окно с загруженными транспортными средствами
-    if dpg.does_item_exist("loaded_vehicles_window"):  # Проверка, существует ли уже окно с загруженными транспортными средствами
+    if dpg.does_item_exist("loaded_vehicles_window"): 
         for vehicle in loaded_vehicles:
-                with dpg.table_row():  # Добавление строки в таблицу для каждого загруженного транспортного средства
-                    dpg.add_text(str(vehicle.vehicle_id))  # ID транспортного средства
-                    dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                    dpg.add_text(str(vehicle.current_load))  # Текущая загрузка
+                with dpg.table_row():
+                    dpg.add_text(str(vehicle.vehicle_id)) 
+                    dpg.add_text(str(vehicle.capacity)) 
+                    dpg.add_text(str(vehicle.current_load))
 
-                    # Проверка типа транспортного средства
                     if isinstance(vehicle, Airplane):
-                        dpg.add_text(f"Высота: {vehicle.max_altitude}")  # Высота для самолета
+                        dpg.add_text(f"Высота: {vehicle.max_altitude}") 
                     elif isinstance(vehicle, Van):
-                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  # Холодильник для фургона
+                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}") 
                 dpg.set_value("status", "Таблица выведена")
         return
 
-    # Проверка, есть ли транспортные средства с загрузкой больше нуля
-    loaded_vehicles = list(filter(lambda v: v.current_load > 0, company.vehicles))  # Фильтрация транспортных средств с загрузкой больше нуля
-    if not loaded_vehicles:  # Проверка, есть ли загруженные транспортные средства
-        print("Нет загруженных транспортных средств.")  # Сообщение, если нет загруженных транспортных средств
+    loaded_vehicles = list(filter(lambda v: v.current_load > 0, company.vehicles)) 
+    if not loaded_vehicles:  
+        print("Нет загруженных транспортных средств.") 
         return
 
-    with dpg.window(label="Загруженные транспортные средства", modal=True, width=600, height=400, tag="loaded_vehicles_window"):  # Создание нового окна "Загруженные транспортные средства"
-        with dpg.table(header_row=True):  # Создание таблицы с заголовком
-            dpg.add_table_column(label="ID")  # Добавление колонки "ID"
-            dpg.add_table_column(label="Грузоподъемность")  # Добавление колонки "Грузоподъемность"
-            dpg.add_table_column(label="Текущая загрузка")  # Добавление колонки "Текущая загрузка"
-            dpg.add_table_column(label="Особенности")  # Добавление колонки "Особенности"
+    with dpg.window(label="Загруженные транспортные средства", modal=True, width=600, height=400, tag="loaded_vehicles_window"): 
+        with dpg.table(header_row=True):  
+            dpg.add_table_column(label="ID")  
+            dpg.add_table_column(label="Грузоподъемность")  
+            dpg.add_table_column(label="Текущая загрузка") 
+            dpg.add_table_column(label="Особенности")  
 
-            # Добавляем загруженные транспортные средства в таблицу
             for vehicle in loaded_vehicles:
-                with dpg.table_row():  # Добавление строки в таблицу для каждого загруженного транспортного средства
-                    dpg.add_text(str(vehicle.vehicle_id))  # ID транспортного средства
-                    dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                    dpg.add_text(str(vehicle.current_load))  # Текущая загрузка
+                with dpg.table_row():  
+                    dpg.add_text(str(vehicle.vehicle_id)) 
+                    dpg.add_text(str(vehicle.capacity)) 
+                    dpg.add_text(str(vehicle.current_load))
 
-                    # Проверка типа транспортного средства
                     if isinstance(vehicle, Airplane):
-                        dpg.add_text(f"Высота: {vehicle.max_altitude}")  # Высота для самолета
+                        dpg.add_text(f"Высота: {vehicle.max_altitude}")
                     elif isinstance(vehicle, Van):
-                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}")  # Холодильник для фургона
+                        dpg.add_text(f"Холодильник: {'Да' if vehicle.is_refrigerated else 'Нет'}") 
                 dpg.set_value("status", "Таблица выведена")
 
         dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("loaded_vehicles_window"))
@@ -128,50 +122,50 @@ def show_loaded():
 
 
 def client_form():
-    if dpg.does_item_exist("client_form"):  # Проверка, существует ли уже форма клиента
+    if dpg.does_item_exist("client_form"): 
         return
-    with dpg.window(label="Добавить клиента", width=400, height=300, modal=True, tag="client_form"):  # Создание нового окна "Добавить клиента"
-        dpg.add_text("Имя клиента:")  # Добавление текста "Имя клиента:"
-        dpg.add_input_text(tag="client_name", width=250)  # Добавление поля ввода для имени клиента
-        dpg.add_text("Вес груза:")  # Добавление текста "Вес груза:"
-        dpg.add_input_text(tag="client_cargo_weight", width=250)  # Добавление поля ввода для веса груза
-        dpg.add_text("VIP статус:")  # Добавление текста "VIP статус:"
-        dpg.add_checkbox(tag="client_is_vip")  # Добавление чекбокса для VIP статуса
-        dpg.add_button(label="Сохранить", callback=save_client)  # Добавление кнопки "Сохранить" с вызовом функции save_client
-        dpg.add_button(label="Отмена", callback=lambda: dpg.delete_item("client_form"))  # Добавление кнопки "Отмена" для удаления формы
+    with dpg.window(label="Добавить клиента", width=400, height=300, modal=True, tag="client_form"):  
+        dpg.add_text("Имя клиента:") 
+        dpg.add_input_text(tag="client_name", width=250) 
+        dpg.add_text("Вес груза:")  
+        dpg.add_input_text(tag="client_cargo_weight", width=250)
+        dpg.add_text("VIP статус:")  
+        dpg.add_checkbox(tag="client_is_vip")
+        dpg.add_button(label="Сохранить", callback=save_client) 
+        dpg.add_button(label="Отмена", callback=lambda: dpg.delete_item("client_form")) 
 
 def save_client():
-    name = dpg.get_value("client_name")  # Получение значения имени клиента
-    cargo_weight = dpg.get_value("client_cargo_weight")  # Получение значения веса груза
-    is_vip = dpg.get_value("client_is_vip")  # Получение значения VIP статуса
+    name = dpg.get_value("client_name") 
+    cargo_weight = dpg.get_value("client_cargo_weight") 
+    is_vip = dpg.get_value("client_is_vip") 
 
-    if name and cargo_weight.isdigit() and int(cargo_weight) > 0:  # Проверка корректности введенных данных
-        client = Client(name, int(cargo_weight), is_vip)  # Создание объекта клиента
-        company.add_client(client)  # Добавление клиента в компанию
-        update_client()  # Обновление таблицы клиентов
-        dpg.delete_item("client_form")  # Удаление формы клиента
+    if name and cargo_weight.isdigit() and int(cargo_weight) > 0:  
+        client = Client(name, int(cargo_weight), is_vip)
+        company.add_client(client) 
+        update_client() 
+        dpg.delete_item("client_form")
         dpg.set_value("status", "Клиент добавлен")
     else:
-        dpg.set_value("status", "Ошибка: Проверьте введённые данные!")  # Установка сообщения об ошибке
+        dpg.set_value("status", "Ошибка: Проверьте введённые данные!") 
 
 
 def vehicle_form():
-    if dpg.does_item_exist("vehicle_form"):  # Проверка, существует ли уже форма транспорта
+    if dpg.does_item_exist("vehicle_form"): 
         return
-    with dpg.window(label="Добавить транспорт", width=400, height=300, modal=True, tag="vehicle_form"):  # Создание нового окна "Добавить транспорт"
-        dpg.add_text("Тип транспорта:")  # Добавление текста "Тип транспорта:"
-        dpg.add_combo(["Самолет", "Фургон"], tag="vehicle_type", width=250, callback=specific_reg)  # Добавление выпадающего списка для выбора типа транспорта
-        dpg.add_text("Грузоподъемность (тонны):")  # Добавление текста "Грузоподъемность (тонны):"
-        dpg.add_input_text(tag="vehicle_capacity", width=250)  # Добавление поля ввода для грузоподъемности
+    with dpg.window(label="Добавить транспорт", width=400, height=300, modal=True, tag="vehicle_form"): 
+        dpg.add_text("Тип транспорта:")  
+        dpg.add_combo(["Самолет", "Фургон"], tag="vehicle_type", width=250, callback=specific_reg) 
+        dpg.add_text("Грузоподъемность (тонны):") 
+        dpg.add_input_text(tag="vehicle_capacity", width=250) 
 
-        dpg.add_text("Введите высоту полёта:", tag="max_altitude_label", show=False)  # Добавление текста "Введите высоту полёта:" (скрыто)
-        dpg.add_input_text(tag="max_altitude", width=250, show=False)  # Добавление поля ввода для высоты полёта (скрыто)
+        dpg.add_text("Введите высоту полёта:", tag="max_altitude_label", show=False) 
+        dpg.add_input_text(tag="max_altitude", width=250, show=False) 
 
-        dpg.add_text("Есть ли холодильник:", tag="refrigerator_label", show=False)  # Добавление текста "Есть ли холодильник:" (скрыто)
-        dpg.add_checkbox(tag="refrigerator", show=False)  # Добавление чекбокса для холодильника (скрыто)
+        dpg.add_text("Есть ли холодильник:", tag="refrigerator_label", show=False) 
+        dpg.add_checkbox(tag="refrigerator", show=False) 
 
-        dpg.add_button(label="Сохранить", callback=save_vehicle)  # Добавление кнопки "Сохранить" с вызовом функции save_vehicle
-        dpg.add_button(label="Отмена", callback=lambda: dpg.delete_item("vehicle_form"))  # Добавление кнопки "Отмена" для удаления формы
+        dpg.add_button(label="Сохранить", callback=save_vehicle)
+        dpg.add_button(label="Отмена", callback=lambda: dpg.delete_item("vehicle_form")) 
 
 def specific_reg(sender, app_data):
     if app_data == "Самолет":
