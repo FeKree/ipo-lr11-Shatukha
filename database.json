@@ -1,0 +1,21 @@
+{
+    "clients": [
+        {
+            "name": "5",
+            "cargo_weight": 55,
+            "is_vip": true
+        }
+    ],
+    "vehicles": [
+        {
+            "vehicle_id": 6353,
+            "capacity": 555,
+            "current_load": 550,
+            "type": "Airplane",
+            "details": {
+                "max_altitude": 5,
+                "has_refrigerator": null
+            }
+        }
+    ]
+}
