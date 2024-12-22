@@ -169,62 +169,61 @@ def vehicle_form():
 
 def specific_reg(sender, app_data):
     if app_data == "Самолет":
-        dpg.configure_item("max_altitude_label", show=True)  # Показать поле для высоты полёта
-        dpg.configure_item("max_altitude", show=True)  # Показать поле для ввода высоты полёта
-        dpg.configure_item("refrigerator_label", show=False)  # Скрыть поле для холодильника
-        dpg.configure_item("refrigerator", show=False)  # Скрыть чекбокс для холодильника
+        dpg.configure_item("max_altitude_label", show=True) 
+        dpg.configure_item("max_altitude", show=True)  
+        dpg.configure_item("refrigerator_label", show=False)
+        dpg.configure_item("refrigerator", show=False)  
     elif app_data == "Фургон":
-        dpg.configure_item("max_altitude_label", show=False)  # Скрыть поле для высоты полёта
-        dpg.configure_item("max_altitude", show=False)  # Скрыть поле для ввода высоты полёта
-        dpg.configure_item("refrigerator_label", show=True)  # Показать поле для холодильника
-        dpg.configure_item("refrigerator", show=True)  # Показать чекбокс для холодильника
+        dpg.configure_item("max_altitude_label", show=False) 
+        dpg.configure_item("max_altitude", show=False)  
+        dpg.configure_item("refrigerator_label", show=True) 
+        dpg.configure_item("refrigerator", show=True) 
 
 
 def save_vehicle():
-    vehicle_type = dpg.get_value("vehicle_type")  # Получение типа транспортного средства
-    capacity = dpg.get_value("vehicle_capacity")  # Получение грузоподъемности
+    vehicle_type = dpg.get_value("vehicle_type")  
+    capacity = dpg.get_value("vehicle_capacity")
 
-    if capacity.isdigit() and int(capacity) > 0:  # Проверка корректности введенной грузоподъемности
+    if capacity.isdigit() and int(capacity) > 0:  
         capacity = int(capacity)
         if vehicle_type == "Самолет":
-            max_altitude = dpg.get_value("max_altitude")  # Получение высоты полёта
-            if max_altitude.isdigit() and int(max_altitude) > 0:  # Проверка корректности введенной высоты полёта
-                vehicle = Airplane(capacity, int(max_altitude))  # Передаем высоту полёта
+            max_altitude = dpg.get_value("max_altitude") 
+            if max_altitude.isdigit() and int(max_altitude) > 0: 
+                vehicle = Airplane(capacity, int(max_altitude))  
             else:
-                dpg.set_value("status", "Ошибка: Проверьте высоту полёта!")  # Установка сообщения об ошибке
+                dpg.set_value("status", "Ошибка: Проверьте высоту полёта!")
                 return
         elif vehicle_type == "Фургон":
-            has_refrigerator = dpg.get_value("refrigerator")  # Получение значения холодильника
-            vehicle = Van(capacity, has_refrigerator)  # Создание объекта фургона
+            has_refrigerator = dpg.get_value("refrigerator") 
+            vehicle = Van(capacity, has_refrigerator)
         else:
-            vehicle = Vehicle(capacity)  # Грузовик по умолчанию
+            vehicle = Vehicle(capacity)  
         dpg.set_value("status", "Транспорт добавлен")
 
-        company.add_vehicle(vehicle)  # Добавление транспортного средства
-        update_vehicle()  # Обновление таблицы транспортных средств
-        dpg.delete_item("vehicle_form")  # Закрытие формы
+        company.add_vehicle(vehicle)  
+        update_vehicle()  
+        dpg.delete_item("vehicle_form")  
     else:
-        print("\n\n\n\n\n\n")
-        dpg.set_value("status", "Ошибка: Проверьте введённые данные!")  # Установка сообщения об ошибке
+        print("\n\n\n\n")
+        dpg.set_value("status", "Ошибка: Проверьте введённые данные!")
 
 
 
 
-# Создаем окно с VIP клиентами
-    with dpg.window(label="VIP клиенты", modal=True, width=600, height=400, tag="clients_window"):  # Создаем новое окно "VIP клиенты"
-        # Добавляем таблицу с данными
-        with dpg.table(header_row=True):  # Создаем таблицу с заголовком
-            dpg.add_table_column(label="Имя клиента")  # Добавляем колонку "Имя клиента"
-            dpg.add_table_column(label="Вес груза")  # Добавляем колонку "Вес груза"
-            dpg.add_table_column(label="VIP статус")  # Добавляем колонку "VIP статус"
+    with dpg.window(label="VIP клиенты", modal=True, width=600, height=400, tag="clients_window"):
 
-            for client in filter(lambda c: c.is_vip, company.clients):  # Проходим по всем VIP клиентам
-                with dpg.table_row():  # Добавляем строку в таблицу для каждого VIP клиента
-                    dpg.add_text(client.name)  # Имя клиента
-                    dpg.add_text(str(client.cargo_weight))  # Вес груза клиента
-                    dpg.add_text("Да")  # VIP статус клиента
+        with dpg.table(header_row=True): 
+            dpg.add_table_column(label="Имя клиента") 
+            dpg.add_table_column(label="Вес груза")  
+            dpg.add_table_column(label="VIP статус") 
+
+            for client in filter(lambda c: c.is_vip, company.clients):
+                with dpg.table_row():  
+                    dpg.add_text(client.name) 
+                    dpg.add_text(str(client.cargo_weight))  
+                    dpg.add_text("Да") 
         
-        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("clients_window")) # Кнопка для закрытия окна
+        dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("clients_window"))
 
 
 def json_load():
@@ -232,95 +231,87 @@ def json_load():
         "clients": [{"name": c.name, "cargo_weight": c.cargo_weight, "is_vip": c.is_vip} for c in company.clients],  # Список клиентов с их данными
         "vehicles": [
             {
-                "vehicle_id": v.vehicle_id,  # ID транспортного средства
-                "capacity": v.capacity,  # Грузоподъемность транспортного средства
-                "current_load": v.current_load,  # Текущая загрузка транспортного средства
-                "type": "Airplane" if isinstance(v, Airplane) else "Van" if isinstance(v, Van) else "Truck",  # Тип транспортного средства
+                "vehicle_id": v.vehicle_id, 
+                "capacity": v.capacity, 
+                "current_load": v.current_load, 
+                "type": "Airplane" if isinstance(v, Airplane) else "Van" if isinstance(v, Van) else "Truck",
                 "details": {
-                    "max_altitude": getattr(v, 'max_altitude', None),  # Высота полёта для самолета;getattr получить значение атрибута объекта по его имени в виде строки.
-                    "has_refrigerator": getattr(v, 'has_refrigerator', None)  # Наличие холодильника для фургона
+                    "max_altitude": getattr(v, 'max_altitude', None),
+                    "has_refrigerator": getattr(v, 'has_refrigerator', None) 
                 }
-            } for v in company.vehicles  # Проходим по всем транспортным средствам
+            } for v in company.vehicles 
         ]
     }
 
-    with open("database.json", "w", encoding="utf-8") as file:  # Открываем файл "export.json" для записи с кодировкой "utf-8"
-        json.dump(data, file, ensure_ascii=False, indent=4)  # Записываем данные в файл в формате JSON с отступами
-    dpg.set_value("status", "Результаты экспортированы в файл database.json.")  # Устанавливаем сообщение о статусе экспорта
+    with open("database.json", "w", encoding="utf-8") as file: 
+        json.dump(data, file, ensure_ascii=False, indent=4)
+    dpg.set_value("status", "Результаты экспортированы в файл database.json.")
 
 
 def optimize_cargo():
-    company.distribute_cargo()  # Распределяем грузы по транспортным средствам
-    update_vehicle()  # Обновляем таблицу транспортных средств
-    dpg.set_value("status", "Грузы успешно распределены!")  # Устанавливаем сообщение о статусе распределения
+    company.distribute_cargo() 
+    update_vehicle()
+    dpg.set_value("status", "Грузы успешно распределены!")
 
 def distribute_cargo_results():
-    # Проверяем, существует ли уже окно с результатами распределения
-    if dpg.does_item_exist("cargo_distribution_window"):  # Проверка, существует ли уже окно с результатами распределения
+    if dpg.does_item_exist("cargo_distribution_window"): 
         with dpg.table(header_row=True):
             dpg.add_table_column(label="Транспортное средство")
             dpg.add_table_column(label="Грузоподъемность")
             dpg.add_table_column(label="Текущий груз")
             dpg.add_table_column(label="Распределенный груз")
 
-            # Пример распределения груза: для каждого транспортного средства
             for vehicle in company.vehicles:
-                # Пример распределения груза
-                distributed_cargo = vehicle.current_load  # Здесь вы можете взять данные из своей логики распределения
+                distributed_cargo = vehicle.current_load  
                 with dpg.table_row():
-                    dpg.add_text(vehicle.vehicle_id)  # Идентификатор транспортного средства
-                    dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                    dpg.add_text(str(vehicle.current_load))  # Текущий груз
-                    dpg.add_text(str(distributed_cargo))  # Распределенный груз
+                    dpg.add_text(vehicle.vehicle_id)  
+                    dpg.add_text(str(vehicle.capacity))  
+                    dpg.add_text(str(vehicle.current_load))  
+                    dpg.add_text(str(distributed_cargo)) 
         return
 
 
-    # Создаем окно для отображения результатов
     with dpg.window(label="Распределение груза", modal=True, width=600, height=400, tag="cargo_distribution_window"):
-        # Создаем таблицу для отображения результатов
         with dpg.table(header_row=True):
             dpg.add_table_column(label="Транспортное средство")
             dpg.add_table_column(label="Грузоподъемность")
             dpg.add_table_column(label="Текущий груз")
             dpg.add_table_column(label="Распределенный груз")
 
-            # Пример распределения груза: для каждого транспортного средства
             for vehicle in company.vehicles:
-                # Пример распределения груза
-                distributed_cargo = vehicle.current_load  # Здесь вы можете взять данные из своей логики распределения
+                distributed_cargo = vehicle.current_load 
                 with dpg.table_row():
-                    dpg.add_text(vehicle.vehicle_id)  # Идентификатор транспортного средства
-                    dpg.add_text(str(vehicle.capacity))  # Грузоподъемность
-                    dpg.add_text(str(vehicle.current_load))  # Текущий груз
-                    dpg.add_text(str(distributed_cargo))  # Распределенный груз
+                    dpg.add_text(vehicle.vehicle_id) 
+                    dpg.add_text(str(vehicle.capacity)) 
+                    dpg.add_text(str(vehicle.current_load))
+                    dpg.add_text(str(distributed_cargo)) 
 
-        # Кнопка для закрытия окна
         dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("cargo_distribution_window"))
 
 
 def show_me():
-    if dpg.does_item_exist("about_window"):  # Проверка, существует ли уже окно "about_window"
+    if dpg.does_item_exist("about_window"): 
         return
 
-    with dpg.window(label="Программа", width=800, height=600, modal=True, tag="about_window"):  # Создание нового окна "О программе"
-        dpg.add_text("Лабораторная работа 12", color=[133, 135, 55])  # Добавление текста "Лабораторная работа номер 12"
-        dpg.add_text("Вариант: 4", color=[133, 135, 55])  # Добавление текста "Вариант: 4"
+    with dpg.window(label="Программа", width=800, height=600, modal=True, tag="about_window"):
+        dpg.add_text("Лабораторная работа 12", color=[133, 135, 55])  
+        dpg.add_text("Вариант: 4", color=[133, 135, 55])
         dpg.add_text("Шатуха Алексей Кириллович",   color=[133, 135, 55]) 
         dpg.add_button(label="Закрыть", callback=lambda: dpg.delete_item("about_window"))  
         dpg.set_value("status", "Вот и вы")
 
 
 def fonts():
-    with dpg.font_registry():  # Создание реестра шрифтов
-        with dpg.font("minecraft.ttf", 14) as default_font:  # Добавление шрифта Arial размером 20
-            dpg.add_font_range_hint(dpg.mvFontRangeHint_Default)  # Добавление диапазона шрифтов по умолчанию
-            dpg.add_font_range_hint(dpg.mvFontRangeHint_Cyrillic)  # Добавление диапазона шрифтов для кириллицы
-            dpg.bind_font(default_font)  # Привязка шрифта по умолчанию
+    with dpg.font_registry(): 
+        with dpg.font("minecraft.ttf", 14) as default_font: 
+            dpg.add_font_range_hint(dpg.mvFontRangeHint_Default) 
+            dpg.add_font_range_hint(dpg.mvFontRangeHint_Cyrillic) 
+            dpg.bind_font(default_font) 
 
 
 def optimize_cargo():
-    company.optimize_cargo_distribution()  # Вызываем метод для распределения грузов
-    update_vehicle()  # Обновляем таблицу с транспортными средствами
+    company.optimize_cargo_distribution() 
+    update_vehicle()  
     dpg.set_value("status", "Грузы успешно распределены!")
 
 
@@ -329,68 +320,59 @@ def keyboard():
     Настройка глобальных обработчиков клавиш для всех окон.
     """
     def handle_escape():
-        # Закрытие всех открытых окон
         open_windows = [
-            "client_form",  # Форма клиента
-            "vehicle_form",  # Форма транспортного средства
-            "clients_window",  # Окно клиентов
-            "all_vehicles_window",  # Окно всех транспортных средств
-            "about_window",  # Окно "О программе"
-            "all_clients_window",  # Окно всех клиентов
-            "cargo_distribution_window",  # Окно распределения грузов
-            "cargo_distribution_window",  # Окно распределения грузов (повтор)
+            "client_form",
+            "vehicle_form",  
+            "clients_window", 
+            "all_vehicles_window",  
+            "about_window", 
+            "all_clients_window",  
+            "cargo_distribution_window",  
+            "cargo_distribution_window", 
         ]
         for window in open_windows:
-            if dpg.does_item_exist(window):  # Проверка, существует ли окно
-                dpg.delete_item(window)  # Удаление окна
+            if dpg.does_item_exist(window):
+                dpg.delete_item(window) 
 
     def handle_enter():
-        # Сохранение данных в активной форме
-        if dpg.does_item_exist("client_form"):  # Проверка, существует ли форма клиента
-            save_client()  # Сохранение данных клиента
-        elif dpg.does_item_exist("vehicle_form"):  # Проверка, существует ли форма транспортного средства
-            save_vehicle()  # Сохранение данных транспортного средства
+        if dpg.does_item_exist("client_form"): 
+            save_client()  
+        elif dpg.does_item_exist("vehicle_form"): 
+            save_vehicle() 
 
 
-    # Глобальная регистрация обработчиков
     with dpg.handler_registry():
-        # Escape: закрыть окна
         dpg.add_key_down_handler(key=dpg.mvKey_Escape, callback=lambda: handle_escape())
-        # Enter: сохранить данные
         dpg.add_key_down_handler(key=dpg.mvKey_Return, callback=lambda: handle_enter())
 
 def main_topic():
-    with dpg.window(label="Основное окно", width=1500, height=1000):  # Создаем основное окно
-        dpg.add_button(label="О программе", callback=show_me )  # Добавляем кнопку "О программе" с вызовом функции show_about
+    with dpg.window(label="Основное окно", width=1500, height=1000): 
+        dpg.add_button(label="О программе", callback=show_me )  
 
-        with dpg.group(horizontal=False):  # Создаем горизонтальную группу
-            # Клиенты
-            with dpg.group():  # Создаем группу для клиентов
-                dpg.add_text("Клиенты", tag="clients_text" , color=[255, 0, 0])  # Добавляем текст "Клиенты"
-                with dpg.table(tag="clients_table", header_row=True ):  # Создаем таблицу для клиентов
-                    dpg  # Пустая строка для таблицы
-                dpg.add_button(label="Добавить клиента", callback=client_form)  # Добавляем кнопку "Добавить клиента" с вызовом функции show_client_form
-                dpg.add_button(label="Показать всех клиентов", callback=show_clients)  # Добавляем кнопку "Показать всех клиентов" с вызовом функции show_all_clients
+        with dpg.group(horizontal=False): 
+            with dpg.group(): 
+                dpg.add_text("Клиенты", tag="clients_text" , color=[255, 0, 0])
+                with dpg.table(tag="clients_table", header_row=True ):  
+                    dpg  
+                dpg.add_button(label="Добавить клиента", callback=client_form)  
+                dpg.add_button(label="Показать всех клиентов", callback=show_clients) 
 
-            # Транспортные средства
-            with dpg.group():  # Создаем группу для транспортных средств
-                dpg.add_text("Транспортные средства", tag="vehicles_text" , color=[255, 0, 0] )  # Добавляем текст "Транспортные средства"
-                with dpg.table(tag="vehicles_table", header_row=True):  # Создаем таблицу для транспортных средств
-                    dpg  # Пустая строка для таблицы
-                dpg.add_button(label="Добавить транспорт", callback=vehicle_form)  # Добавляем кнопку "Добавить транспорт" с вызовом функции show_vehicle_form
-                dpg.add_button(label="Распределить грузы", callback=optimize_cargo)  # Добавляем кнопку "Распределить грузы" с вызовом функции optimize_cargo_distribution
-                dpg.add_button(label="Показать все транспортные средства", callback=show_vehicles)  # Добавляем кнопку "Показать все транспортные средства" с вызовом функции show_all_vehicles
-                dpg.add_button(label="Показать результат распределения", callback=distribute_cargo_results)  # Добавляем кнопку "Показать результат распределения" с вызовом функции distribute_cargo_results
-                dpg.add_button(label="Экспортировать результат", callback=json_load)  # Добавляем кнопку "Экспортировать результат" с вызовом функции export_results
+            with dpg.group(): 
+                dpg.add_text("Транспортные средства", tag="vehicles_text" , color=[255, 0, 0] ) 
+                with dpg.table(tag="vehicles_table", header_row=True):  
+                    dpg 
+                dpg.add_button(label="Добавить транспорт", callback=vehicle_form)  
+                dpg.add_button(label="Распределить грузы", callback=optimize_cargo) 
+                dpg.add_button(label="Показать все транспортные средства", callback=show_vehicles) 
+                dpg.add_button(label="Показать результат распределения", callback=distribute_cargo_results) 
+                dpg.add_button(label="Экспортировать результат", callback=json_load) 
 
-        dpg.add_text("", tag="status" , color=[0, 255, 0]) # Добавляем текстовый элемент с тегом "status"
+        dpg.add_text("", tag="status" , color=[0, 255, 0]) 
 
-# Запуск приложения
 dpg.create_context()
 fonts()
 main_topic()
 
-# Настройка обработчиков клавиш
 keyboard()
 
 dpg.create_viewport(title="TC", width=1500, height=1000)
